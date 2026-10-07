@@ -1,0 +1,2 @@
+import {db} from '@/lib/db';
+export async function POST(req:Request){const b=await req.json();const p=await db.payment.create({data:{invoiceId:b.invoiceId,amount:Number(b.amount),method:b.method||'TRANSFER',reference:b.reference||null}});const inv=await db.invoice.findUnique({where:{id:b.invoiceId},include:{payments:true}});const paid=(inv?.payments||[]).reduce((s,p)=>s+Number(p.amount),0);await db.invoice.update({where:{id:b.invoiceId},data:{status:paid>=Number(inv?.total||0)?'PAID':'PARTIAL'}});return Response.json(p,{status:201})}
