@@ -1,22 +1,43 @@
 import { db } from '@/lib/db';
+import { apiError } from '@/lib/http';
 
-const allowed = ['DRAFT', 'SENT', 'ACCEPTED', 'REJECTED', 'EXPIRED'] as const;
+// ACCEPTED n'est jamais manuel : il résulte uniquement de /confirm.
+const TRANSITIONS: Record<string, string[]> = {
+  DRAFT: ['SENT', 'REJECTED'],
+  SENT: ['REJECTED', 'EXPIRED'],
+};
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
+  const target = body?.status;
 
-  if (!allowed.includes(body.status)) {
-    return new Response('Statut invalide', { status: 400 });
+  const quote = await db.quote.findUnique({
+    where: { id },
+    select: { status: true },
+  });
+  if (!quote) {
+    return apiError(404, 'QUOTE_NOT_FOUND', 'Devis introuvable.');
   }
 
-  const quote = await db.quote.update({
-    where: { id },
-    data: { status: body.status },
-  });
+  if (!TRANSITIONS[quote.status]?.includes(target)) {
+    return apiError(
+      409,
+      'INVALID_TRANSITION',
+      'Ce changement de statut n’est pas autorisé.',
+    );
+  }
 
-  return Response.json(quote);
+  const res = await db.quote.updateMany({
+    where: { id, status: quote.status },
+    data: { status: target },
+  });
+  if (res.count === 0) {
+    return apiError(409, 'QUOTE_CHANGED', 'Le devis a été modifié entre-temps.');
+  }
+
+  return Response.json({ id, status: target });
 }
