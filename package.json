@@ -3,13 +3,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "latest",
+    "@prisma/client": "6.19.3",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
@@ -22,9 +22,9 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "prisma": "latest",
+    "prisma": "6.19.3",
     "tsx": "latest",
-    "typescript": "latest",
+    "typescript": "5.9.3",
     "tailwindcss": "latest",
     "@tailwindcss/postcss": "latest",
     "postcss": "latest",
