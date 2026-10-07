@@ -43,7 +43,7 @@ export function QuoteActions({
     }
   }
 
-  if (done || status === 'ACCEPTED') {
+  if (done) {
     return (
       <span className="text-green-700 font-semibold">
         ✓ Commande créée
