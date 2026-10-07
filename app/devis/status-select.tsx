@@ -5,7 +5,6 @@ import { useState } from 'react';
 const statuses = [
   ['DRAFT', 'Brouillon'],
   ['SENT', 'Envoyé'],
-  ['ACCEPTED', 'Accepté'],
   ['REJECTED', 'Refusé'],
   ['EXPIRED', 'Expiré'],
 ] as const;
@@ -20,6 +19,14 @@ export function StatusSelect({
   const [status, setStatus] = useState(initialStatus);
   const [saving, setSaving] = useState(false);
 
+  if (status === 'ACCEPTED') {
+    return (
+      <span className="badge">
+        Accepté
+      </span>
+    );
+  }
+
   async function changeStatus(value: string) {
     setStatus(value);
     setSaving(true);
@@ -32,6 +39,8 @@ export function StatusSelect({
       });
 
       if (!res.ok) throw new Error();
+
+      window.location.reload();
     } catch {
       setStatus(initialStatus);
       alert('Impossible de modifier le statut.');
