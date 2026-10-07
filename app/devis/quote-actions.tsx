@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { errorMessage } from '@/lib/http';
 
 export function QuoteActions({
   id,
@@ -25,7 +26,7 @@ export function QuoteActions({
       });
 
       if (!res.ok) {
-        const message = await res.text();
+        const message = await errorMessage(res);
         throw new Error(message);
       }
 

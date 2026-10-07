@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { errorMessage } from '@/lib/http';
 
 const statuses = [
   ['DRAFT', 'Brouillon'],
@@ -38,12 +39,12 @@ export function StatusSelect({
         body: JSON.stringify({ status: value }),
       });
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(await errorMessage(res));
 
       window.location.reload();
-    } catch {
+    } catch (error) {
       setStatus(initialStatus);
-      alert('Impossible de modifier le statut.');
+      alert(error instanceof Error ? error.message : 'Impossible de modifier le statut.');
     } finally {
       setSaving(false);
     }
